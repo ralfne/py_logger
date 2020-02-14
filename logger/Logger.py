@@ -2,7 +2,6 @@ import datetime
 from abc import abstractmethod, ABCMeta
 from sys import stdout
 
-
 class Logger(object):
     __metaclass__ = ABCMeta
 
@@ -11,6 +10,8 @@ class Logger(object):
 
     @abstractmethod
     def log(self, message, includeTimestamp=False, onlyIfVerbose=False):pass
+
+    def set_carriage_reset(self, carriage_reset=False): pass
 
     def _createLogMessage(self, message, includeTimestamp=False, onlyIfVerbose=False):
         out = ''
@@ -28,11 +29,31 @@ class Logger(object):
     @abstractmethod
     def printLog(self): pass
 
+
+class DummyLogger(Logger):
+    def log(self, message, includeTimestamp=False, onlyIfVerbose=False): pass
+
+    def getLog(self):
+        return None
+
+    def printLog(self):pass
+
+
 class StdOutLogger(Logger):
+    def __init__(self, verbose=True):
+        super(StdOutLogger, self).__init__(verbose)
+        self._newline = '\n'
+
+    def set_carriage_reset(self, carriage_reset=False):
+        if carriage_reset:
+            self._newline = ''
+        else:
+            self._newline = '\n'
+
     def log(self, message, includeTimestamp=False, onlyIfVerbose=False):
         s = self._createLogMessage(message, includeTimestamp, onlyIfVerbose)
         if s is not None:
-            stdout.write(s + '\n')
+            stdout.write(s + self._newline)
 
     def getLog(self):
         return None
@@ -41,7 +62,7 @@ class StdOutLogger(Logger):
 
 
 class StringLogger(Logger):
-    def __init__(self,  verbose):
+    def __init__(self,  verbose=True):
         super(StringLogger, self).__init__(verbose)
         self._log=''
 
@@ -55,3 +76,27 @@ class StringLogger(Logger):
 
     def printLog(self):
         print (self._log)
+
+
+class FileLogger(Logger):
+    def __init__(self, logFileName, verbose=True):
+        super(FileLogger, self).__init__(verbose)
+        self._logFileName = logFileName
+
+    def log(self, message, includeTimestamp=False, onlyIfVerbose=False):
+        s = self._createLogMessage(message, includeTimestamp, onlyIfVerbose)
+        if s is not None:
+            f_obj = open(self._logFileName, "a")
+            f_obj.write(s + '\n')
+            f_obj.close()
+
+    def getLog(self):
+        f_obj = open(self._logFileName, "r")
+        out = f_obj.readlines()
+        f_obj.close()
+        return out
+
+    def printLog(self):
+        lines = self.getLog()
+        for line in lines:
+            print line.rstrip()

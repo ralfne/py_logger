@@ -1,12 +1,12 @@
 from setuptools import setup
 
 setup(
-    name='Logger',
-    version='1.0',
+    name='logger',
+    version='2.0',
     packages=[''],
     url='',
-    license='',
-    author='ralfne',
+    license='GNU General Public License v3.0',
+    author='Ralf Stefan Neumann',
     author_email='',
-    description='Logger class'
+    description='Logger classes for logging to stdout, file etc.'
 )
