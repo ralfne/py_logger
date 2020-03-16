@@ -2,6 +2,7 @@ import datetime
 from abc import abstractmethod, ABCMeta
 from sys import stdout
 
+
 class Logger(object):
     __metaclass__ = ABCMeta
 
